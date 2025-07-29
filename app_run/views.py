@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from rest_framework import viewsets
 from .models import Run
-from .serializers import RunSerializer
+from django.contrib.auth.models import User
+from .serializers import RunSerializer, StaffSerializer
 
 
 @api_view(['GET'])
@@ -17,3 +18,17 @@ def company_details(request):
 class RunViewSet(viewsets.ModelViewSet):
     queryset = Run.objects.all()
     serializer_class = RunSerializer
+
+class StaffViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = StaffSerializer
+    queryset = User.objects.all()
+
+    def get_queryset(self):
+        qs = User.objects.filter(is_superuser=False)
+        type_staff = self.request.query_params.get('type', None)
+        if type_staff == 'coach':
+            qs = qs.filter(is_staff=True)
+        elif type_staff == 'athlete':
+            qs = qs.filter(is_staff=False)
+        return qs
+

@@ -35,6 +35,7 @@ class RunViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at']
 
 
+
 class StaffViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StaffSerializer
     queryset = User.objects.all()
@@ -42,6 +43,7 @@ class StaffViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter]  # Подключаем SearchFilter здесь
     search_fields = ['first_name', 'last_name']
     ordering_fields = ['date_joined']
+
 
     def get_queryset(self):
         qs = User.objects.filter(is_superuser=False)

@@ -9,6 +9,6 @@ class Run(models.Model):
         'finished': 'finished'
     }
     created_at = models.DateTimeField(auto_now_add=True)
-    athlete = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    athlete = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='runs')
     comment = models.CharField(max_length=200)
     status = models.CharField(max_length=200, choices=STATUS_CHOCES, default='init')

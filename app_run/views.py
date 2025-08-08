@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -6,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
-from .models import Run
+from .models import Run, AthleteInfo
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from .serializers import RunSerializer, StaffSerializer
@@ -77,3 +78,31 @@ class StopRunView(APIView):
             run.save()
             return Response(data, status=status.HTTP_200_OK)
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AthleteView(APIView):
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        athlete, created = AthleteInfo.objects.update_or_create(
+            user_id = user
+        )
+        return Response(data={
+            'goals': athlete.goals,
+            'weight' : athlete.weight,
+            'user_id': user.id
+        })
+
+    def put(self, request, user_id):
+        goals = request.data.get('goals')
+        weight = request.data.get('weight')
+        user = get_object_or_404(User, id=user_id)
+        if 0 < float(weight) < 900:
+            AthleteInfo.objects.update_or_create(
+                user_id=user,
+                defaults={
+                    'goals': goals,
+                    'weight': float(weight)
+                }
+            )
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

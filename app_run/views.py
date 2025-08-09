@@ -96,12 +96,12 @@ class AthleteView(APIView):
         goals = request.data.get('goals')
         weight = request.data.get('weight')
         user = get_object_or_404(User, id=user_id)
-        if 0 < float(weight) < 900:
+        if 0 < int(weight) < 900:
             AthleteInfo.objects.update_or_create(
                 user_id=user,
                 defaults={
                     'goals': goals,
-                    'weight': float(weight)
+                    'weight': int(weight)
                 }
             )
             return Response(status=status.HTTP_201_CREATED)

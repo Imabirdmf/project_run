@@ -96,7 +96,7 @@ class AthleteView(APIView):
         goals = request.data.get('goals')
         weight = request.data.get('weight')
         user = get_object_or_404(User, id=user_id)
-        if 0 < int(weight) < 900:
+        if weight.isdigit() and 0 < int(weight) < 900:
             AthleteInfo.objects.update_or_create(
                 user_id=user,
                 defaults={

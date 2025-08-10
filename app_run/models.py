@@ -23,3 +23,8 @@ class AthleteInfo(models.Model):
         on_delete=models.CASCADE,
         primary_key=True
     )
+
+
+class Challenge(models.Model):
+    full_name = models.CharField(max_length=200)
+    athlete = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='challenges')

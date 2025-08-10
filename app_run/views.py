@@ -7,10 +7,10 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
-from .models import Run, AthleteInfo
+from .models import Run, AthleteInfo, Challenge
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from .serializers import RunSerializer, StaffSerializer
+from .serializers import RunSerializer, StaffSerializer, ChallengeSerializer
 
 
 class Pagination(PageNumberPagination):
@@ -34,7 +34,6 @@ class RunViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['athlete', 'status']
     ordering_fields = ['created_at']
-
 
 
 class StaffViewSet(viewsets.ReadOnlyModelViewSet):
@@ -76,6 +75,11 @@ class StopRunView(APIView):
         if current_status == 'in_progress':
             run.status = run.STATUS_CHOCES.get('finished')
             run.save()
+            if run.athlete.runs.filter(status='finished').count() == 10:
+                Challenge.objects.update_or_create(
+                    full_name = 'Сделай 10 Забегов!',
+                    athlete = run.athlete
+                )
             return Response(data, status=status.HTTP_200_OK)
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
@@ -106,3 +110,8 @@ class AthleteView(APIView):
             )
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChallengesViewSet(viewsets.ModelViewSet):
+    serializer_class = ChallengeSerializer
+    queryset = Challenge.objects.all()

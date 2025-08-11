@@ -5,3 +5,4 @@ __pycache__/
 .env
 db.sqlite3
 #/app_run/migrations/
+/app_run/migrations/__old__0007_position.py

@@ -37,6 +37,5 @@ urlpatterns = [
     path('api/runs/<int:id>/start/', StartRunView.as_view()),
     path('api/runs/<int:id>/stop/', StopRunView.as_view()),
     path('api/athlete_info/<int:user_id>/', AthleteView.as_view())
-    # path('/api/challenges/<int:user_id>', ChallengesView.as_view())
 
 ]

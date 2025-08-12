@@ -115,13 +115,3 @@ class AthleteView(APIView):
 class ChallengesViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSerializer
     queryset = Challenge.objects.all()
-
-    def get_queryset(self):
-        qs = User.objects.filter(is_superuser=False)
-        user_id = self.request.query_params.get('athlete', None)
-        if user_id:
-            qs = get_object_or_404(User, id=user_id)
-            qs = qs.challenges.all()
-        else:
-            qs = Challenge.objects.all()
-        return qs

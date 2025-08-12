@@ -22,13 +22,13 @@ from rest_framework.routers import DefaultRouter
 
 from app_run.models import Challenge
 from app_run.views import company_details, RunViewSet, StaffViewSet, StartRunView, StopRunView, AthleteView, \
-    ChallengesViewSet
+    ChallengesViewSet, PositionViewSet
 
 router = DefaultRouter()
 router.register('api/runs', RunViewSet)
 router.register('api/users', StaffViewSet)
 router.register('api/challenges', ChallengesViewSet)
-
+router.register('api/positions', PositionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

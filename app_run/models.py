@@ -28,3 +28,9 @@ class AthleteInfo(models.Model):
 class Challenge(models.Model):
     full_name = models.CharField(max_length=200)
     athlete = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='challenges')
+
+
+class Position(models.Model):
+    run = models.ForeignKey(Run, on_delete=models.CASCADE, null=False, related_name='positions')
+    latitude = models.DecimalField(max_digits=10, decimal_places=4)
+    longitude = models.DecimalField(max_digits=10, decimal_places=4)

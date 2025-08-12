@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Run, Challenge
+from .models import Run, Challenge, Position
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -36,3 +37,26 @@ class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = '__all__'
+
+
+class PositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Position
+        fields = '__all__'
+
+    def validate_latitude(self, value):
+        if -90.0 <= value <= 90.0:
+            return value
+        raise serializers.ValidationError
+
+    def validate_longitude(self, value):
+        if -180.0 <= value <= 180.0:
+            return value
+        raise serializers.ValidationError
+
+    def validate_run(self, value):
+        print(value)
+        value = get_object_or_404(Run, id=value.id)
+        if value.status == 'in_progress':
+            return value
+        raise serializers.ValidationError

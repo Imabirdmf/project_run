@@ -7,10 +7,10 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
-from .models import Run, AthleteInfo, Challenge
+from .models import Run, AthleteInfo, Challenge, Position
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from .serializers import RunSerializer, StaffSerializer, ChallengeSerializer
+from .serializers import RunSerializer, StaffSerializer, ChallengeSerializer, PositionSerializer
 
 
 class Pagination(PageNumberPagination):
@@ -122,4 +122,17 @@ class ChallengesViewSet(viewsets.ModelViewSet):
         if user_id:
             qs = get_object_or_404(User, id=user_id)
             qs = qs.challenges.all()
+        return qs
+
+
+class PositionViewSet(viewsets.ModelViewSet):
+    serializer_class = PositionSerializer
+    queryset = Position.objects.all().select_related('run')
+
+    def get_queryset(self):
+        qs = Position.objects.all()
+        run_id = self.request.query_params.get('run', None)
+        if run_id:
+            run_obj = get_object_or_404(Run, id=run_id)
+            qs = Position.objects.filter(run=run_obj)
         return qs

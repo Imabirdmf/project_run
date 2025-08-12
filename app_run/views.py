@@ -136,4 +136,6 @@ class PositionViewSet(viewsets.ModelViewSet):
         if run_id:
             run_obj = get_object_or_404(Run, id=run_id)
             qs = Position.objects.filter(run=run_obj)
+        else:
+            qs = Position.objects.all()
         return qs

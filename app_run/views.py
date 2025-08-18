@@ -11,6 +11,7 @@ from .models import Run, AthleteInfo, Challenge, Position
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from .serializers import RunSerializer, StaffSerializer, ChallengeSerializer, PositionSerializer
+from geopy import distance
 
 
 class Pagination(PageNumberPagination):
@@ -74,6 +75,10 @@ class StopRunView(APIView):
         current_status = run.status
         if current_status == 'in_progress':
             run.status = run.STATUS_CHOCES.get('finished')
+            positions = run.positions.all()
+            start_position = (positions.first().latitude, positions.first().longitude)
+            stop_position = (positions.last().latitude, positions.last().longitude)
+            run.distance = distance.distance(start_position, stop_position).km
             run.save()
             if run.athlete.runs.filter(status='finished').count() == 10:
                 Challenge.objects.update_or_create(

@@ -12,6 +12,7 @@ class Run(models.Model):
     athlete = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='runs')
     comment = models.CharField(max_length=200)
     status = models.CharField(max_length=200, choices=STATUS_CHOCES, default='init')
+    distance = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
 
 
@@ -32,5 +33,5 @@ class Challenge(models.Model):
 
 class Position(models.Model):
     run = models.ForeignKey(Run, on_delete=models.CASCADE, null=False, related_name='positions')
-    latitude = models.DecimalField(max_digits=10, decimal_places=4)
-    longitude = models.DecimalField(max_digits=10, decimal_places=4)
+    latitude = models.DecimalField(max_digits=10, decimal_places=6)
+    longitude = models.DecimalField(max_digits=10, decimal_places=6)

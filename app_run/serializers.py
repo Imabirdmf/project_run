@@ -42,6 +42,7 @@ class ChallengeSerializer(serializers.ModelSerializer):
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Position
+        ordering = ['id']
         fields = '__all__'
 
     def validate_latitude(self, value):

@@ -76,9 +76,13 @@ class StopRunView(APIView):
         if current_status == 'in_progress':
             run.status = run.STATUS_CHOCES.get('finished')
             positions = run.positions.all()
-            start_position = (positions.first().latitude, positions.first().longitude)
-            stop_position = (positions.last().latitude, positions.last().longitude)
-            run.distance = distance.distance(start_position, stop_position).km
+            start_position = (0.00, 0.00)
+            run_distance = float(run.distance)
+            for pos in positions:
+                stop_position = (pos.latitude, pos.longitude)
+                run_distance += distance.distance(start_position, stop_position).km
+                start_position = stop_position
+            run.distance = run_distance
             run.save()
             if run.athlete.runs.filter(status='finished').count() == 10:
                 Challenge.objects.update_or_create(

@@ -76,7 +76,7 @@ class StopRunView(APIView):
         if current_status == 'in_progress':
             run.status = run.STATUS_CHOCES.get('finished')
             positions = run.positions.all()
-            start_position = (0.00, 0.00)
+            start_position = (positions.first().latitude, positions.first().longitude)
             run_distance = float(run.distance)
             for pos in positions:
                 stop_position = (pos.latitude, pos.longitude)

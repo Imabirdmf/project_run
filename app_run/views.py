@@ -7,6 +7,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
+from urllib3 import request
+
 from .models import Run, AthleteInfo, Challenge, Position
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -75,23 +77,23 @@ class StopRunView(APIView):
         current_status = run.status
         if current_status == 'in_progress':
             run.status = run.STATUS_CHOCES.get('finished')
-            positions = run.positions.all()
-            start_position = (positions.first().latitude, positions.first().longitude)
-            run_distance = float(run.distance)
-            for pos in positions:
-                stop_position = (pos.latitude, pos.longitude)
-                run_distance += distance.distance(start_position, stop_position).km
-                start_position = stop_position
-            print(run_distance)
-            run.distance = run_distance
+            # positions = run.positions.all()
+            # start_position = (positions.first().latitude, positions.first().longitude)
+            # run_distance = float(run.distance)
+            # for pos in positions:
+            #     stop_position = (pos.latitude, pos.longitude)
+            #     run_distance += distance.distance(start_position, stop_position).km
+            #     start_position = stop_position
+            # run.distance = run_distance
             run.save()
-            finished_runs = run.athlete.runs.filter(status='finished').count()
-            if finished_runs == 10:
+            finished_runs = run.athlete.runs.filter(status='finished')
+
+            if finished_runs.count() == 10:
                 Challenge.objects.update_or_create(
                     full_name = 'Сделай 10 Забегов!',
                     athlete = run.athlete
                 )
-            elif run_distance >= 50.00:
+            elif sum(finished_runs.values_list("distance", flat=True)) >= 50.00:
                 Challenge.objects.update_or_create(
                     full_name='Пробеги 50 километров!',
                     athlete=run.athlete
@@ -145,6 +147,18 @@ class PositionViewSet(viewsets.ModelViewSet):
     serializer_class = PositionSerializer
     queryset = Position.objects.all().select_related('run')
 
+    def update_distance(self, serializer):
+        position = serializer.save()
+        run = position.run
+        run_distance = run.distance
+        positions = run.positions.order_by("-id")
+        if positions.count() >= 2:
+            last_two = positions.values_list("latitude", "longitude")[:2]
+            (lat1, lon1), (lat2, lon2) = last_two
+            run_distance += distance.distance((lat1, lon1), (lat2, lon2)).km
+            run.distance = run_distance
+            run.save(update_fields=["distance"])
+
     def get_queryset(self):
         qs = Position.objects.all()
         run_id = self.request.query_params.get('run', None)
@@ -152,3 +166,4 @@ class PositionViewSet(viewsets.ModelViewSet):
             run_obj = get_object_or_404(Run, id=run_id)
             qs = Position.objects.filter(run=run_obj)
         return qs
+

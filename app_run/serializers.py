@@ -56,7 +56,6 @@ class PositionSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError
 
     def validate_run(self, value):
-        print(value)
         value = get_object_or_404(Run, id=value.id)
         if value.status == 'in_progress':
             return value

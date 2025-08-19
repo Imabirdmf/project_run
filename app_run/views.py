@@ -82,6 +82,7 @@ class StopRunView(APIView):
                 stop_position = (pos.latitude, pos.longitude)
                 run_distance += distance.distance(start_position, stop_position).km
                 start_position = stop_position
+            print(run_distance)
             run.distance = run_distance
             run.save()
             finished_runs = run.athlete.runs.filter(status='finished').count()
@@ -90,7 +91,7 @@ class StopRunView(APIView):
                     full_name = 'Сделай 10 Забегов!',
                     athlete = run.athlete
                 )
-            elif finished_runs == 50 or run_distance >= 50:
+            elif run_distance >= 50.00:
                 Challenge.objects.update_or_create(
                     full_name='Пробеги 50 километров!',
                     athlete=run.athlete

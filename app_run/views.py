@@ -77,14 +77,14 @@ class StopRunView(APIView):
         current_status = run.status
         if current_status == 'in_progress':
             run.status = run.STATUS_CHOCES.get('finished')
-            # positions = run.positions.all()
-            # start_position = (positions.first().latitude, positions.first().longitude)
-            # run_distance = float(run.distance)
-            # for pos in positions:
-            #     stop_position = (pos.latitude, pos.longitude)
-            #     run_distance += distance.distance(start_position, stop_position).km
-            #     start_position = stop_position
-            # run.distance = run_distance
+            positions = run.positions.all()
+            start_position = (positions.first().latitude, positions.first().longitude)
+            run_distance = float(run.distance)
+            for pos in positions:
+                stop_position = (pos.latitude, pos.longitude)
+                run_distance += distance.distance(start_position, stop_position).km
+                start_position = stop_position
+            run.distance = run_distance
             run.save()
             finished_runs = run.athlete.runs.filter(status='finished')
 
@@ -147,17 +147,17 @@ class PositionViewSet(viewsets.ModelViewSet):
     serializer_class = PositionSerializer
     queryset = Position.objects.all().select_related('run')
 
-    def update_distance(self, serializer):
-        position = serializer.save()
-        run = position.run
-        run_distance = run.distance
-        positions = run.positions.order_by("-id")
-        if positions.count() >= 2:
-            last_two = positions.values_list("latitude", "longitude")[:2]
-            (lat1, lon1), (lat2, lon2) = last_two
-            run_distance += distance.distance((lat1, lon1), (lat2, lon2)).km
-            run.distance = run_distance
-            run.save(update_fields=["distance"])
+    # def update_distance(self, serializer):
+    #     position = serializer.save()
+    #     run = position.run
+    #     run_distance = run.distance
+    #     positions = run.positions.order_by("-id")
+    #     if positions.count() >= 2:
+    #         last_two = positions.values_list("latitude", "longitude")[:2]
+    #         (lat1, lon1), (lat2, lon2) = last_two
+    #         run_distance += distance.distance((lat1, lon1), (lat2, lon2)).km
+    #         run.distance = run_distance
+    #         run.save(update_fields=["distance"])
 
     def get_queryset(self):
         qs = Position.objects.all()

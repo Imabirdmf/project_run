@@ -84,10 +84,16 @@ class StopRunView(APIView):
                 start_position = stop_position
             run.distance = run_distance
             run.save()
-            if run.athlete.runs.filter(status='finished').count() == 10:
+            finished_runs = run.athlete.runs.filter(status='finished').count()
+            if finished_runs == 10:
                 Challenge.objects.update_or_create(
                     full_name = 'Сделай 10 Забегов!',
                     athlete = run.athlete
+                )
+            elif finished_runs == 50 or run_distance >= 50:
+                Challenge.objects.update_or_create(
+                    full_name='Пробеги 50 километров!',
+                    athlete=run.athlete
                 )
             return Response(data, status=status.HTTP_200_OK)
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
@@ -126,7 +132,7 @@ class ChallengesViewSet(viewsets.ModelViewSet):
     queryset = Challenge.objects.all()
 
     def get_queryset(self):
-        qs = User.objects.filter(is_superuser=False)
+        qs = Challenge.objects.all()
         user_id = self.request.query_params.get('athlete', None)
         if user_id:
             qs = get_object_or_404(User, id=user_id)
